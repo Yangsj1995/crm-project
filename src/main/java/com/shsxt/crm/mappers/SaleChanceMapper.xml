@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shsxt.crm.dao.SaleChanceDao">
+
+    <sql id="sale_chance_column">
+        id,customer_name as customerName,chance_source chanceSource,cgjl,overview,link_man as linkMan,
+        link_phone as linkPhone,description,create_man as createMan,assign_man as  assignMan,
+        assign_time as assignTime,state,dev_result as devResult,is_valid as isValid,create_date as createDate,
+        update_date as updateDate
+    </sql>
+
+    <select id="querySaleChancesByParams" parameterType="saleChanceQuery" resultType="saleChance">
+
+        select <include refid="sale_chance_column"/>
+
+        FROM t_sale_chance
+
+       <where>
+           is_valid = 1
+           <if test=" createMan !=null and createMan !='' ">
+               and create_man like concat('%',#{createMan},'%')
+           </if>
+           <if test=" customerName !=null and customerName !='' ">
+               and customer_name like concat('%',#{customerName},'%')
+           </if>
+           <if test=" state !=null and state != '' ">
+               and state = #{state}
+           </if>
+           <if test=" createDate !=null and createDate !='' ">
+
+               <![CDATA[
+                     and create_date <= #{createDate}
+                ]]>
+           </if>
+
+       </where>
+
+    </select>
+
+    <delete id="delete">
+        update t_sale_chance
+        set is_valid = 0
+        where id in
+        <foreach collection="array" item="sale_chance_id" open="(" separator="," close=")">
+            #{sale_chance_id}
+        </foreach>
+    </delete>
+
+</mapper>
